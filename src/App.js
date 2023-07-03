@@ -16,6 +16,23 @@ class App extends React.Component {
       isProcessing: false,
       ocrText: "",
       pctg: "0.00",
+      firstName: "",
+      lastName: "",
+      middleName: "",
+      dateOfBirth: "",
+      countryOfBirth: "",
+      placeOfBirth: "",
+      gender: "",
+      maritalStatus: "",
+      currentAddress: "",
+      passportNumber: "",
+      countryOfIssuance: "",
+      dateOfIssue: "",
+      dateOfExpiry: "",
+      phoneNumber: "",
+      email: "",
+      declaration: "",
+      signature: "",
     };
     this.pond = React.createRef();
     this.worker = React.createRef();
@@ -34,94 +51,190 @@ class App extends React.Component {
     const {
       data: { text },
     } = await this.worker.recognize(file);
-    const email = this.extractEmail(text);
-    const phone = this.extractPhoneNumber(text);
-    const github = this.extractGithub(text);
-    const linkedin = this.extractLinkedin(text);
-    const name = this.extractName(text);
-    const education = this.extractInfo(text, "education");
-    const skills = this.extractInfo(text, "technical skills");
-    const experience = this.extractInfo(text, "professional experience");
-    const volunteer = this.extractInfo(text, "volunteer experience");
-    const languages = this.extractInfo(text, "languages");
+    const firstName = this.extractFirstName(text);
+    const lastName = this.extractLastName(text);
+    const middleName = this.extractMiddleName(text); // new
+    const dateOfBirth = this.extractDateOfBirth(text);
+    const countryOfBirth = this.extractCountryOfBirth(text);
+    const placeOfBirth = this.extractPlaceOfBirth(text); // new
+    const gender = this.extractGender(text); // new
+    const maritalStatus = this.extractMaritalStatus(text); // new
+    const passportNumber = this.extractPassportNumber(text);
+    const countryOfIssuance = this.extractCountryOfIssuance(text); // new
+    const dateOfIssue = this.extractDateOfIssue(text); // new
+    const dateOfExpiry = this.extractDateOfExpiry(text); // new
+    const phoneNumber = this.extractPhoneNumber(text); // new
+    const email = this.extractEmail(text); // new
+    const streetAddress = this.extractStreetAddress(text);
+    const city = this.extractCity(text);
+    const region = this.extractRegion(text);
+    const postalCode = this.extractPostalCode(text);
+    const country = this.extractCountry(text);
+    const declaration = this.extractDeclaration(text);
+    const signature = this.extractSignature(text);
     this.setState({
       isProcessing: false,
-      email,
-      phone,
-      github,
-      linkedin,
-      name,
-      education,
-      skills,
-      experience,
-      volunteer,
-      languages,
+      firstName,
+      lastName,
+      middleName, // new
+      dateOfBirth,
+      countryOfBirth,
+      placeOfBirth, // new
+      gender, // new
+      maritalStatus, // new
+      passportNumber,
+      countryOfIssuance, // new
+      dateOfIssue, // new
+      dateOfExpiry, // new
+      phoneNumber, // new
+      email, // new
+      streetAddress,
+      city,
+      region,
+      postalCode,
+      country,
+      declaration,
+      signature,
       ocrText: text,
     });
   }
 
-  extractEmail(text) {
-    const emailRegex = /\S+@\S+\.\S+/;
-    const match = text.match(emailRegex);
-    return match ? match[0] : "";
+  extractDeclaration(text) {
+    const declarationKeyword = "declaration";
+    return this.extractFieldAfterKeyword(text, declarationKeyword);
   }
 
-  extractInfo(text, keyword) {
-    const lowerCaseText = text.toLowerCase();
-    const lowerCaseKeyword = keyword.toLowerCase();
-    if (lowerCaseText.includes(lowerCaseKeyword)) {
-      const startIndex =
-        lowerCaseText.indexOf(lowerCaseKeyword) + lowerCaseKeyword.length;
-      let endIndex = lowerCaseText.indexOf("\n", startIndex);
-      while (endIndex !== -1 && lowerCaseText[endIndex + 1] === "•") {
-        endIndex = lowerCaseText.indexOf("\n", endIndex + 1);
-      }
-      return text
-        .substring(startIndex, endIndex === -1 ? undefined : endIndex)
-        .trim();
-    }
-    return "";
+  extractSignature(text) {
+    const signatureKeyword = "signature";
+    return this.extractFieldAfterKeyword(text, signatureKeyword);
+  }
+
+  extractFirstName(text) {
+    const firstNameKeyword = "first name";
+    return this.extractFieldAfterKeyword(text, firstNameKeyword);
+  }
+
+  extractLastName(text) {
+    const lastNameKeyword = "last name";
+    return this.extractFieldAfterKeyword(text, lastNameKeyword);
+  }
+
+  extractDateOfBirth(text) {
+    const dobKeyword = "date of birth";
+    return this.extractFieldAfterKeyword(text, dobKeyword);
+  }
+
+  extractCountryOfBirth(text) {
+    const countryOfBirthKeyword = "country of birth";
+    return this.extractFieldAfterKeyword(text, countryOfBirthKeyword);
+  }
+
+  extractPassportNumber(text) {
+    const passportNumberKeyword = "passport number";
+    return this.extractFieldAfterKeyword(text, passportNumberKeyword);
+  }
+  // New extraction functions
+  extractMiddleName(text) {
+    const middleNameKeyword = "middle name";
+    return this.extractFieldAfterKeyword(text, middleNameKeyword);
+  }
+
+  extractPlaceOfBirth(text) {
+    const placeOfBirthKeyword = "place of birth";
+    return this.extractFieldAfterKeyword(text, placeOfBirthKeyword);
+  }
+
+  extractGender(text) {
+    const genderKeyword = "gender";
+    return this.extractFieldAfterKeyword(text, genderKeyword);
+  }
+
+  extractMaritalStatus(text) {
+    const maritalStatusKeyword = "marital status";
+    return this.extractFieldAfterKeyword(text, maritalStatusKeyword);
+  }
+
+  extractCountryOfIssuance(text) {
+    const countryOfIssuanceKeyword = "country of issuance";
+    return this.extractFieldAfterKeyword(text, countryOfIssuanceKeyword);
+  }
+
+  extractDateOfIssue(text) {
+    const dateOfIssueKeyword = "date of issue";
+    return this.extractFieldAfterKeyword(text, dateOfIssueKeyword);
+  }
+
+  extractDateOfExpiry(text) {
+    const dateOfExpiryKeyword = "date of expiry";
+    return this.extractFieldAfterKeyword(text, dateOfExpiryKeyword);
   }
 
   extractPhoneNumber(text) {
-    const phoneRegex = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/;
-    const match = text.match(phoneRegex);
-    return match ? match[0] : "";
+    const phoneNumberKeyword = "phone number";
+    return this.extractFieldAfterKeyword(text, phoneNumberKeyword);
   }
 
-  extractGithub(text) {
-    const githubRegex = /github\.com\/[^\s]*/;
-    const match = text.match(githubRegex);
-    return match ? match[0] : "";
+  extractEmail(text) {
+    const emailKeyword = "email";
+    return this.extractFieldAfterKeyword(text, emailKeyword);
   }
 
-  extractLinkedin(text) {
-    const linkedinRegex = /linkedin\.com\/[^\s]*/;
-    const match = text.match(linkedinRegex);
-    return match ? match[0] : "";
+  extractStreetAddress(text) {
+    const keyword = "street address";
+    return this.extractFieldAfterKeyword(text, keyword);
   }
 
-  extractName(text) {
-    const nameRegex = /^[^\n]*/;
-    const match = text.match(nameRegex);
-    return match ? match[0] : "";
+  extractCity(text) {
+    const keyword = "city";
+    return this.extractFieldAfterKeyword(text, keyword);
+  }
+
+  extractRegion(text) {
+    const keyword = "region";
+    return this.extractFieldAfterKeyword(text, keyword);
+  }
+
+  extractPostalCode(text) {
+    const keyword = "postal code";
+    return this.extractFieldAfterKeyword(text, keyword);
+  }
+
+  extractCountry(text) {
+    const keyword = "country";
+    return this.extractFieldAfterKeyword(text, keyword);
+  }
+
+  extractFieldAfterKeyword(text, keyword) {
+    const lowerCaseText = text.toLowerCase();
+    const lowerCaseKeyword = keyword.toLowerCase();
+    const keywordIndex = lowerCaseText.indexOf(lowerCaseKeyword);
+
+    if (keywordIndex !== -1) {
+      const startIndex = keywordIndex + lowerCaseKeyword.length;
+      const endIndex = lowerCaseText.indexOf("\n", startIndex);
+      if (endIndex !== -1) {
+        return text.substring(startIndex, endIndex).trim();
+      } else {
+        // If no new line character found, return the entire remaining text
+        return text.substring(startIndex).trim();
+      }
+    }
+
+    return "";
   }
 
   updateProgressAndLog(m) {
-    // Maximum value out of which percentage needs to be
-    // calculated. In our case it's 0 for 0 % and 1 for Max 100%
-    // DECIMAL_COUNT specifies no of floating decimal points in our
-    // Percentage
-    var MAX_PARCENTAGE = 1;
-    var DECIMAL_COUNT = 2;
+    const MAX_PERCENTAGE = 1;
+    const DECIMAL_COUNT = 2;
 
     if (m.status === "recognizing text") {
-      var pctg = (m.progress / MAX_PARCENTAGE) * 100;
+      const pctg = (m.progress / MAX_PERCENTAGE) * 100;
       this.setState({
         pctg: pctg.toFixed(DECIMAL_COUNT),
       });
     }
   }
+
   async componentDidMount() {
     this.worker = await createWorker({
       logger: (m) => this.updateProgressAndLog(m),
@@ -133,37 +246,6 @@ class App extends React.Component {
     await this.worker.loadLanguage("eng");
     await this.worker.initialize("eng");
   }
-
-  openCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const video = document.createElement("video");
-      video.srcObject = stream;
-      video.play();
-      document.body.appendChild(video);
-      const button = document.createElement("button");
-      button.textContent = "Capture";
-      button.onclick = () => this.captureImage(video);
-      document.body.appendChild(button);
-    } catch (error) {
-      console.error("Failed to open camera:", error);
-    }
-  };
-
-  captureImage = (video) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext("2d");
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL("image/png");
-    fetch(dataUrl)
-      .then((res) => res.blob())
-      .then((blob) => {
-        const file = new File([blob], "capture.png", { type: "image/png" });
-        this.doOCR(file);
-      });
-  };
 
   render() {
     return (
@@ -183,7 +265,6 @@ class App extends React.Component {
                   });
                 }}
               />
-              <button onClick={this.openCamera}>Open Camera</button>
             </div>
             <div className="col-md-4"></div>
           </div>
@@ -199,14 +280,14 @@ class App extends React.Component {
                   ></i>{" "}
                   <span className="status-text">
                     {this.state.isProcessing
-                      ? `Processing Image ( ${this.state.pctg} % )`
-                      : "Parsed Text"}{" "}
+                      ? `Processing Image (${this.state.pctg}%)`
+                      : "Parsed Text"}
                   </span>
                 </div>
               </div>
             </h5>
-            <div class="card-body">
-              <p class="card-text">
+            <div className="card-body">
+              <p className="card-text">
                 {this.state.isProcessing
                   ? "..........."
                   : this.state.ocrText.length === 0
@@ -219,17 +300,41 @@ class App extends React.Component {
           <div className="ocr-text"></div>
         </div>
 
-        <p class="white-text">Name: {this.state.name}</p>
-        <p class="white-text">Phone: {this.state.phone}</p>
-        <p class="white-text">Email: {this.state.email}</p>
-        <p class="white-text">Github: {this.state.github}</p>
-        <p class="white-text">LinkedIn: {this.state.linkedin}</p>
-        <p class="white-text">Education: {this.state.education}</p>
-        <p class="white-text">Skills: {this.state.skills}</p>
-        <p class="white-text">Experience: {this.state.experience}</p>
-        <p class="white-text">Volunteer: {this.state.volunteer}</p>
-        <p class="white-text">Languages: {this.state.languages}</p>
-        <p class="white-text">Full text: {this.state.ocrText}</p>
+        {/* Personal Information */}
+        <h2 className="white-text">Personal Information</h2>
+        <p className="white-text">First Name: {this.state.firstName}</p>
+        <p className="white-text">Middle Name: {this.state.middleName}</p>
+        <p className="white-text">Last Name: {this.state.lastName}</p>
+        <p className="white-text">Date of Birth: {this.state.dateOfBirth}</p>
+        <p className="white-text">Country of Birth: {this.state.countryOfBirth}</p>
+        <p className="white-text">Place of Birth: {this.state.placeOfBirth}</p>
+        <p className="white-text">Gender: {this.state.gender}</p>
+        <p className="white-text">Marital Status: {this.state.maritalStatus}</p>
+
+        {/* Current Address */}
+        <h2 className="white-text">Current Address</h2>
+        <p className="white-text">Street Address: {this.state.streetAddress}</p>
+        <p className="white-text">City: {this.state.city}</p>
+        <p className="white-text">Region: {this.state.region}</p>
+        <p className="white-text">Postal Code: {this.state.postalCode}</p>
+        <p className="white-text">Country: {this.state.country}</p>
+
+        {/* Passport Information */}
+        <h2 className="white-text">Passport Information</h2>
+        <p className="white-text">Passport Number: {this.state.passportNumber}</p>
+        <p className="white-text">Country of Issuance: {this.state.countryOfIssuance}</p>
+        <p className="white-text">Date of Issue: {this.state.dateOfIssue}</p>
+        <p className="white-text">Date of Expiry: {this.state.dateOfExpiry}</p>
+
+        {/* Contact Information */}
+        <h2 className="white-text">Contact Information</h2>
+        <p className="white-text">Phone Number: {this.state.phoneNumber}</p>
+        <p className="white-text">Email: {this.state.email}</p>
+
+        {/* Declaration */}
+        {/* <h2>Declaration</h2>
+        <p className="white-text">Declaration: {this.state.declaration}</p>
+        <p className="white-text">Signature: {this.state.signature}</p> */}
       </div>
     );
   }
